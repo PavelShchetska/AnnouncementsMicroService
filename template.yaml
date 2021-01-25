@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  AnnouncementMicroService
+
+Globals:
+  Function:
+    Runtime: python3.8
+    MemorySize: 128
+    Timeout: 20
+    Environment:
+      Variables:
+        DDB_TABLE: !Ref AnnouncementsTable
+
+Resources:
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: ./swagger.yaml
+
+  GetAnnouncementFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getAnnouncement
+      CodeUri: announcement_serverless/
+      Handler: get_announcement.lambda_handler
+      Description: GetAnnouncement Lambda function.
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref AnnouncementsTable
+        - AWSLambdaBasicExecutionRole
+      Events:
+        GetAnnouncement:
+          Type: Api
+          Properties:
+            Path: /announcements/{proxy+}
+            Method: get
+            RestApiId: !Ref ApiGateway
+
+  PostAnnouncementFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: createAnnouncement
+      CodeUri: announcement_serverless/
+      Handler: create_announcement.lambda_handler
+      Description: CreateAnnouncement Lambda function.
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref AnnouncementsTable
+        - AWSLambdaBasicExecutionRole
+      Events:
+        postAnnouncement:
+          Type: Api
+          Properties:
+            Path: /announcements/create
+            Method: post
+            RestApiId: !Ref ApiGateway
+  
+  AnnouncementsTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: announcements
+      PrimaryKey:
+        Name: date
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 10
+        WriteCapacityUnits: 10
+  
+  ConfigGetAnnouncementFunctionLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    DependsOn:
+    - ApiGateway
+    - GetAnnouncementFunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetAnnouncementFunction
+      Principal: apigateway.amazonaws.com
+
+  ConfigPostAnnouncementFunctionLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    DependsOn:
+    - ApiGateway
+    - PostAnnouncementFunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref PostAnnouncementFunction
+      Principal: apigateway.amazonaws.com
+
+Outputs:
+  GetAnnouncementApi:
+    Description: "API Gateway endpoint URL for Prod stage for GetAnnouncementFunction function"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/announcements/"
+
+  PostAnnouncementApi:
+    Description: "API Gateway endpoint URL for Prod stage for PostAnnouncementFunction function"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/announcements/create"

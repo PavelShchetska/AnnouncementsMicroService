@@ -1,0 +1,84 @@
+swagger: "2.0"
+info:
+  description: "This is announcements rest API."
+  version: "0.0.1"
+  title: "AnnouncementsAPI"
+schemes:
+- "https"
+paths:
+  /announcements/create:
+    post:
+      summary: "Add a new announcement to the system"
+      operationId: "addAnnouncement"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Announcement object that needs to be added to the system"
+        required: true
+        schema:
+          $ref: "#/definitions/Announcement"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Unauthorized"
+        500:
+          description: "Internal Server Error"
+      x-amazon-apigateway-request-validators:
+        basic:
+          validateRequestParameters: true
+      x-amazon-apigateway-integration:
+        type: "aws"
+        httpMethod: "POST"
+        uri: 
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostAnnouncementFunction.Arn}/invocations
+        responses:
+          default:
+            statusCode: 200
+  /announcements:
+    get:
+      summary: "Get announcements"
+      description: "Returns all announcements"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Announcement"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Unauthorized"
+        404:
+          description: "Not Found"
+        500:
+          description: "Internal Server Error"
+      x-amazon-apigateway-request-validators:
+        basic:
+          validateRequestParameters: true
+      x-amazon-apigateway-integration:
+        type: "aws"
+        httpMethod: "POST"
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetAnnouncementFunction.Arn}/invocations
+        responses:
+          default:
+            statusCode: 200
+definitions:
+  Announcement:
+    type: "object"
+    properties:
+      date:
+        type: "string"
+      title:
+        type: "string"
+      description:
+        type: "string"
+        
