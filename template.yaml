@@ -73,7 +73,7 @@ Resources:
         WriteCapacityUnits: 10
   
   ConfigGetAnnouncementFunctionLambdaPermission:
-    Type: "AWS::Lambda::Permission"
+    Type: AWS::Lambda::Permission
     DependsOn:
     - ApiGateway
     - GetAnnouncementFunction
@@ -83,7 +83,7 @@ Resources:
       Principal: apigateway.amazonaws.com
 
   ConfigPostAnnouncementFunctionLambdaPermission:
-    Type: "AWS::Lambda::Permission"
+    Type: AWS::Lambda::Permission
     DependsOn:
     - ApiGateway
     - PostAnnouncementFunction
