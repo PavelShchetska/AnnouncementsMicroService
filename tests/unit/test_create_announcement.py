@@ -3,7 +3,7 @@ import pytest
 import boto3
 
 from moto import mock_dynamodb2
-from announcement_serverless import create_announcement
+from announcement_serverless.create_announcement import create_announcement
 
 @pytest.fixture()
 def apigw_event():

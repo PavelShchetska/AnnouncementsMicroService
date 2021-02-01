@@ -27,8 +27,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: getAnnouncement
-      CodeUri: announcement_serverless/
-      Handler: get_announcement.lambda_handler
+      CodeUri: announcement_serverless/get_announcements/
+      Handler: get_announcements.lambda_handler
       Description: GetAnnouncement Lambda function.
       Policies:
         - DynamoDBReadPolicy:
@@ -46,7 +46,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: createAnnouncement
-      CodeUri: announcement_serverless/
+      CodeUri: announcement_serverless/create_announcement/
       Handler: create_announcement.lambda_handler
       Description: CreateAnnouncement Lambda function.
       Policies:

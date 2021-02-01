@@ -3,7 +3,7 @@ import pytest
 import boto3
 
 from moto import mock_dynamodb2
-from announcement_serverless import get_announcement
+from announcement_serverless.get_announcements import get_announcements
 
 
 @pytest.fixture()
@@ -20,7 +20,7 @@ def test_get_announcement_lambda_handler(apigw_event, mocker):
 
     set_dynamodb()
 
-    ret = get_announcement.lambda_handler(apigw_event, "")
+    ret = get_announcements.lambda_handler(apigw_event, "")
 
     print(ret["body"])
 
